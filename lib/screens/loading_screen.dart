@@ -10,12 +10,11 @@ class LoadingScreen extends StatefulWidget {
 }
 
 class _LoadingScreenState extends State<LoadingScreen> {
-  Position? _Position = Position.fromMap({'latitude': 0.0, 'longitude': 0.0});
 
   @override
   void initState() {
     super.initState();
-    _determinePosition();
+    getLocation();
   }
 
   @override
