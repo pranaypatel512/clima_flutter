@@ -2,7 +2,7 @@
 
 import 'package:flutter/foundation.dart';
 
-void log(String message){
+void log(dynamic message){
   if(kDebugMode){
     print(message);
   }

@@ -1,11 +1,14 @@
 import 'dart:convert';
 
 import 'package:clima_flutter/location.dart';
+import 'package:clima_flutter/screens/location_screen.dart';
+import 'package:clima_flutter/services/networking.dart';
 import 'package:flutter/material.dart';
-import 'package:geolocator/geolocator.dart';
-import 'package:http/http.dart' as http;
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 import '../logger.dart';
+
+const apiKey = 'ef7a6d795a6fc79ed30ef4a9dfede057';
 
 class LoadingScreen extends StatefulWidget {
   @override
@@ -13,50 +16,39 @@ class LoadingScreen extends StatefulWidget {
 }
 
 class _LoadingScreenState extends State<LoadingScreen> {
+  double? lat;
+  double? lng;
   @override
   void initState() {
     super.initState();
-    getLocation();
+    getLocationData();
   }
 
   @override
   Widget build(BuildContext context) {
-    getData();
     return Scaffold(
       body: SafeArea(
         child: Center(
-          child: Column(
-            children: [
-              ElevatedButton(
-                  onPressed: () async {
-                    // Position position = await _determinePosition();
-                    // setState(() {
-                    //   _Position = position;
-                    // });
-                  },
-                  child: Text('Get Location')),
-            ],
+          child: SpinKitDoubleBounce(
+            color: Colors.white,
+            size: 100.0,
           ),
         ),
       ),
     );
   }
 
-  void getLocation() async {
+  void getLocationData() async {
     Location location = Location();
-    location.latitude;
-    location.longitude;
-    log("${location.latitude}:${location.longitude}");
-  }
-
-  void getData() async {
-    http.Response response = await http.get(Uri.parse(
-        'https://api.openweathermap.org/data/2.5/weather?lat=23.0225&lon=72.5714&appid=ef7a6d795a6fc79ed30ef4a9dfede057'));
-    log(response.body);
-
-    var id = jsonDecode(response.body)['weather'][0]['id'];
-    var temp = jsonDecode(response.body)['main']['temp'];
-    var name = jsonDecode(response.body)['name'];
-    log('$id:$temp:$name');
+    await location.determinePosition();
+    lat = location.latitude;
+    lng = location.longitude;
+    log("$lat:$lng");
+    NetworkHelper networkHelper = NetworkHelper(
+        'https://api.openweathermap.org/data/2.5/weather?lat=$lat&lon=$lng&appid=$apiKey');
+    var weatherData = await networkHelper.getData();
+    Navigator.push(context, MaterialPageRoute(builder: (builder) {
+      return LocationScreen(weatherData);
+    }));
   }
 }
